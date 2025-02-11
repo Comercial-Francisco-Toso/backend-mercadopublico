@@ -5,20 +5,29 @@ import LicitacionesService from '../services/licitacionesService';
 class LicitacionesController {
     async getLicitaciones(req: Request, res: Response) {
         try {
-            const { page = '1' } = req.query;
-            const take = 500;
-            const pageNumber = Number(page);
-            const skip = (pageNumber - 1) * take;
+            // Se obtiene la data directamente ya que el servicio ya retorna response.data
+            const data = await LicitacionesService.todoEstadoDiaActual();
 
-            const { data, total } = await LicitacionesService.getLicitaciones(skip, take);
+            // Se retorna el JSON recibido
+            res.json(data);
+        } catch (error) {
+            console.error("Error al obtener licitaciones:", error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    }
 
-            res.json({
-                total,
-                page: pageNumber,
-                pageSize: take,
-                totalPages: Math.ceil(total / take),
-                data
-            });
+    async getLicitacionesFecha(req: Request, res: Response) {
+        try {
+
+            const date = new Date();
+
+            const fecha = { 'fecha': date.toDateString() };
+
+            // Se obtiene la data directamente ya que el servicio ya retorna response.data
+            const data = await LicitacionesService.todoFecha(fecha);
+
+            // Se retorna el JSON recibido
+            res.json(data);
         } catch (error) {
             console.error("Error al obtener licitaciones:", error);
             res.status(500).json({ error: 'Internal server error' });
